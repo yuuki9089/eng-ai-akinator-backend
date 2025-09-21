@@ -1,0 +1,2 @@
+INSERT INTO ジャンルマスタ (genre_code, genre_name) VALUES (1,"ポケモン");
+INSERT INTO ジャンルマスタ (genre_code, genre_name) VALUES (2,"学園アイドルマスター");

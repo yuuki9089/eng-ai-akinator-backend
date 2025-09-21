@@ -1,0 +1,15 @@
+INSERT INTO キャラクターマスタ (character_name, genre_code, question_times) VALUES ('花海 咲季', 2, 0);
+INSERT INTO キャラクターマスタ (character_name, genre_code, question_times) VALUES ('月村手毬', 2, 0);
+INSERT INTO キャラクターマスタ (character_name, genre_code, question_times) VALUES ('藤田ことね', 2, 0);
+INSERT INTO キャラクターマスタ (character_name, genre_code, question_times) VALUES ('有村麻央', 2, 0);
+INSERT INTO キャラクターマスタ (character_name, genre_code, question_times) VALUES ('葛城リーリヤ', 2, 0);
+INSERT INTO キャラクターマスタ (character_name, genre_code, question_times) VALUES ('倉本千奈', 2, 0);
+INSERT INTO キャラクターマスタ (character_name, genre_code, question_times) VALUES ('紫雲清夏', 2, 0);
+INSERT INTO キャラクターマスタ (character_name, genre_code, question_times) VALUES ('篠澤広', 2, 0);
+INSERT INTO キャラクターマスタ (character_name, genre_code, question_times) VALUES ('姫崎莉波', 2, 0);
+INSERT INTO キャラクターマスタ (character_name, genre_code, question_times) VALUES ('花海佑芽', 2, 0);
+INSERT INTO キャラクターマスタ (character_name, genre_code, question_times) VALUES ('十王星南', 2, 0);
+INSERT INTO キャラクターマスタ (character_name, genre_code, question_times) VALUES ('秦谷美鈴', 2, 0);
+INSERT INTO キャラクターマスタ (character_name, genre_code, question_times) VALUES ('根緒亜紗里', 2, 0);
+INSERT INTO キャラクターマスタ (character_name, genre_code, question_times) VALUES ('十王邦夫', 2, 0);
+INSERT INTO キャラクターマスタ (character_name, genre_code, question_times) VALUES ('雨夜燕', 2, 0);

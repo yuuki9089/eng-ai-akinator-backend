@@ -1,0 +1,20 @@
+DROP TABLE IF EXISTS `EngAiAkinator`.`ジャンルマスタ`;
+CREATE TABLE `EngAiAkinator`.`ジャンルマスタ` (
+  `genre_code` INT NOT NULL COMMENT 'ジャンルコード',
+  `genre_name` VARCHAR(20) NOT NULL COMMENT 'ジャンル名',
+  PRIMARY KEY (`genre_code`)
+  );
+
+
+
+DROP TABLE IF EXISTS `EngAiAkinator`.`キャラクターマスタ`;
+CREATE TABLE `EngAiAkinator`.`キャラクターマスタ` (
+  `id` INT AUTO_INCREMENT NOT NULL COMMENT 'ID',
+  `character_name` VARCHAR(20) NOT NULL COMMENT 'キャラクター名',
+  `genre_code` INT NOT NULL COMMENT 'ジャンルコード',
+  `question_times` INT NOT NULL COMMENT '出題回数',
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`genre_code`)
+  REFERENCES `EngAiAkinator`.`ジャンルマスタ`(`genre_code`)
+  ON DELETE CASCADE
+  ON UPDATE CASCADE);
