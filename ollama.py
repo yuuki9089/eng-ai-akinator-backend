@@ -16,18 +16,50 @@ OLLAMA_BASE_URL = f"http://{os.environ['OLLAMA_HOST']}:{os.environ['OLLAMA_PORT'
 MODEL_NAME = "elyza:jp8b"
 
 # --- APIエンドポイント ---
-GENERATE_API_URL = f"{OLLAMA_BASE_URL}/api/generate"
+GENERATE_API_URL = f"{OLLAMA_BASE_URL}/api/chat"
 # print(OLLAMA_BASE_URL)
+
+# =================================
+# 【会話の履歴を取得する関数】
+# =================================
+# def get_chat_history(session_id:int) -> dict | None:
+def get_chat_history() -> dict | None:
+    history = []
+
+    history.append({
+        "role": "user",
+        "content": "その名物を食べられるお店を教えて下さい"
+        })
+    history.append({
+        "role": "assistant",
+        "content": "味噌カツが有名です。"
+        })
+    return history
 
 # =================================
 # 【Ollamaで推論をして回答を取得する関数】
 # =================================
 def generate_inference_with_ollama(model: str, prompt: str) -> str | None:
+    
+    # --- 会話履歴の取得 ---
+    chat_history = get_chat_history()
+
+    # --- 今回の会話内容 ---
+    current_message = {
+        "role": "user",
+        "content": prompt
+    }
+
+    # --- ollamaに渡す会話全体 ---
+    messages = []
+    for history in chat_history:
+        messages.append(history)
+    messages.append(current_message)
 
     # --- リクエストの本文で指定する内容 ---
     payload = {
         "model": model,
-        "prompt": prompt,
+        "messages": messages,
         "stream": False
     }
 
@@ -44,7 +76,7 @@ def generate_inference_with_ollama(model: str, prompt: str) -> str | None:
         response_data = response.json()
 
         # --- 生成された回答を取得 ---
-        generated_text = response_data.get("response")
+        generated_text = response_data.get("message").get("content")
         if generated_text:
             return generated_text.strip()
         else:
