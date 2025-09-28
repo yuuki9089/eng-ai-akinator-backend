@@ -25,7 +25,10 @@ GENERATE_API_URL = f"{OLLAMA_BASE_URL}/api/chat"
 # def get_chat_history(session_id:int) -> dict | None:
 def get_chat_history() -> dict | None:
     history = []
-
+    history.append({
+        "role": "system",
+        "content": "あなたは名古屋の地元民です。"
+        })
     history.append({
         "role": "user",
         "content": "その名物を食べられるお店を教えて下さい"
