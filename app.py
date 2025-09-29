@@ -52,6 +52,26 @@ async def random_questions():
         extracted_questions.append(all_questions[num])
     return extracted_questions
 
+# 新しく問題を開始するAPI
+@app.get("/new_question")
+async def new_question():
+    # --- お題を1個弾く ---
+    themes = db_ctl.select_theme() # お題一覧を取得
+    theme = themes[random.randint(0,len(themes))] # 乱数でお題を1つ選定
+    
+    # お題をお題マスタへ登録
+    session_id = db_ctl.insert_theme(theme)
+
+    # キャラクタマスタの出題数をインクリメント
+    db_ctl.increment_question_times(theme)
+
+    # システムロールのプロンプトをDBにいれる
+    db_ctl.insert_system_prompt(session_id,theme)
+
+    return theme
+
+# # AIへ質問を投げるAPI
+# @app.post("/ask_ai")
 
 if __name__ == "__main__":
     uvicorn.run(app,host="127.0.0.1",port=8000, log_level="debug")

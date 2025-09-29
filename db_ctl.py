@@ -41,6 +41,8 @@ def select_genres():
 # =================================
 # 【キャラクタマスタからキャラクタを取得する関数】
 # =================================
+
+
 def select_characters():
     query__for_fetching = """
     SELECT
@@ -55,6 +57,8 @@ def select_characters():
 # =================================
 # 【質問マスタから質問を取得する関数】
 # =================================
+
+
 def select_questions():
     query__for_fetching = """
     SELECT
@@ -65,6 +69,89 @@ def select_questions():
     """
     cur.execute(query__for_fetching)
     return cur.fetchall()
+
+# =================================
+# 【出題回数が低いものからお題を1つ抽出する関数】
+# =================================
+def insert_theme(theme):
+
+    query__for_insert = """
+    INSERT INTO お題マスタ(theme,done)
+    VALUES (%s, %s)
+    """
+
+    # SQL実行
+    cur.execute(query__for_insert,(theme.id,0))
+    
+    # DBをコミット
+    conn.commit()
+
+    # セッションIDが最大のものをreturn
+    query__for_fetching = """
+    SELECT 
+        max(session_id) 
+    FROM お題マスタ 
+    ;
+    """
+    cur.execute(query__for_fetching)
+    return cur.fetchall()
+
+# =================================
+# 【お題をお題マスタへ登録する関数】
+# =================================
+def select_theme():
+    query__for_fetching = """
+    SELECT 
+        * 
+    FROM キャラクタマスタ 
+    WHERE question_times=(
+        SELECT
+             min(question_times) 
+        FROM キャラクタマスタ
+    )
+    ORDER BY id
+    ;
+    """
+    cur.execute(query__for_fetching)
+    return cur.fetchall()
+
+# =================================
+# 【キャラクタマスタの出題回数をインクリメントする関数】
+# =================================
+def increment_question_times(theme):
+    query__for_update = """
+    UPDATE キャラクタマスタ
+    SET question_times = question_times + 1
+    WHERE id = %s
+    """
+
+    # SQL実行
+    cur.execute(query__for_update,(theme.id))
+    
+    # DBをコミット
+    conn.commit()
+
+# =================================
+# 【システムプロンプトを会話履歴マスタに登録する関数】
+# =================================
+def insert_system_prompt(session_id,theme):
+    query__for_insert = """
+    INSERT INTO 会話履歴マスタ(session_id,role,message)
+    VALUES (%s, %s, %s)
+    """
+
+    PROMPT = "あなたはゲームやアニメが大好きなオタクです。" 
+    + "今からクイズを行います。あなたは出題者側です"
+    + "質問される内容にクイズ形式でヒントを出す形で回答してください。"
+    + f"今回のお題は{theme.character_name}です。"
+    + "なお、質問者に絶対に答えを教えてはいけません。"
+
+    # SQL実行
+    cur.execute(query__for_insert,(session_id,"system",PROMPT))
+    
+    # DBをコミット
+    conn.commit()
+
 
 # =================================
 # 【メイン関数】
@@ -87,3 +174,11 @@ if __name__ == "__main__":
         question_code = fetched_line['question_id']
         question_content = fetched_line['question_content']
         print(f'{question_code}: {question_content}')
+
+    result = select_theme()
+    for fetched_line in result:
+        question_code = fetched_line['id']
+        question_content = fetched_line['character_name']
+        genre_code = fetched_line['genre_code']
+        question_times = fetched_line['question_times']
+        print(f'{question_code}: {question_content}:{genre_code}:{question_times}')

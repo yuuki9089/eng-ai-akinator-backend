@@ -134,7 +134,7 @@ if __name__ == "__main__":
     print(f"プロンプト: {PROMPT}")
     print("-" * 30)
 
-        # テキスト生成を実行
+    # テキスト生成を実行
     generated_response = generate_inference_with_ollama(MODEL_NAME,PROMPT)
 
     if generated_response:
