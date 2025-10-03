@@ -53,7 +53,7 @@ async def random_questions():
     return extracted_questions
 
 # 新しく問題を開始するAPI
-@app.get("/new_question")
+@app.post("/new_question")
 async def new_question():
     # --- お題を1個弾く ---
     themes = db_ctl.select_theme() # お題一覧を取得
