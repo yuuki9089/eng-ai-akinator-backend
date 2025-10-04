@@ -96,7 +96,7 @@ def insert_theme(theme):
     ;
     """
     cur.execute(query__for_fetching)
-    return cur.fetchall()
+    return cur.fetchone()
 
 # =================================
 # 【お題をお題マスタへ登録する関数】
@@ -117,6 +117,25 @@ def select_theme():
     ;
     """
     cur.execute(query__for_fetching)
+    return cur.fetchall()
+
+# =================================
+# 【会話履歴マスタから同一のsession_idをすべて取得する関数】
+# =================================
+
+
+def select_conversation_history(session_id):
+    query__for_fetching = """
+    SELECT 
+        role,message AS content
+    FROM
+        会話履歴マスタ
+    WHERE
+        session_id = %s
+    ORDER BY id
+    ;
+    """
+    cur.execute(query__for_fetching,(session_id,))
     return cur.fetchall()
 
 # =================================
@@ -142,10 +161,10 @@ def increment_question_times(theme):
 # =================================
 
 
-def insert_system_prompt(session_id, theme):
+def insert_system_prompt(session_id:int, theme):
     query__for_insert = """
-    INSERT INTO 会話履歴マスタ(session_id,role,message)
-    VALUES (%s, %s, %s)
+    INSERT INTO 会話履歴マスタ(session_id,id,role,message)
+    VALUES (%s, %s, %s, %s)
     """
 
     PROMPT = "あなたはゲームやアニメが大好きなオタクです。" \
@@ -153,20 +172,61 @@ def insert_system_prompt(session_id, theme):
         + "質問される内容にクイズ形式でヒントを出す形で回答してください。"\
         + f"今回のお題は{theme['character_name']}です。"\
         + "なお、質問者に絶対に答えを教えてはいけません。"
-    
-    converted_sid = sid_list_to_value_helper(session_id)
+
     # SQL実行
-    cur.execute(query__for_insert, (converted_sid, "system", PROMPT))
+    cur.execute(query__for_insert, (session_id,get_max_conversation_history_id(session_id) + 1 ,"system", PROMPT))
 
     # DBをコミット
     conn.commit()
 
 # =================================
-# 【Listのdictになっているsession_idから値だけを返すヘルパー関数】
+# 【質問を会話履歴マスタに登録する関数】
 # =================================
-def sid_list_to_value_helper(before_converting:list[dict]):
-    session_id = before_converting[0]['session_id']
-    return session_id
+
+
+def insert_user_question(session_id:int, user_question:str):
+    query__for_insert = """
+    INSERT INTO 会話履歴マスタ(session_id,id,role,message)
+    VALUES (%s, %s, %s, %s)
+    """
+
+    cur.execute(query__for_insert, (session_id,get_max_conversation_history_id(session_id) + 1 ,"user", user_question))
+
+    # DBをコミット
+    conn.commit()
+
+# =================================
+# 【AIの回答を会話履歴マスタに登録する関数】
+# =================================
+
+
+def insert_ai_answer(session_id:int, ai_answer:str):
+    query__for_insert = """
+    INSERT INTO 会話履歴マスタ(session_id,id,role,message)
+    VALUES (%s, %s, %s, %s)
+    """
+
+    cur.execute(query__for_insert, (session_id,get_max_conversation_history_id(session_id) + 1 ,"assistant", ai_answer))
+
+    # DBをコミット
+    conn.commit()
+
+# =================================
+# 【会話履歴マスタから該当のセッションの最大のidを取得する関数】
+# =================================
+def get_max_conversation_history_id(session_id:int):
+
+    # 結果がNULLだった場合は0を返す関数
+    query__for_fetching = """
+    SELECT
+        IFNULL(max(id),0) AS id
+    FROM 会話履歴マスタ
+    WHERE session_id = %s
+    """
+    
+    cur.execute(query__for_fetching,(session_id,))
+    return cur.fetchone()['id']
+
 
 # =================================
 # 【メイン関数】

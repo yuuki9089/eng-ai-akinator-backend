@@ -2,7 +2,14 @@ from fastapi import FastAPI
 import uvicorn
 import db_ctl
 import random
+import request_body as rb
 from starlette.middleware.cors import CORSMiddleware # 追加
+import os
+from dotenv import load_dotenv
+import ollama
+
+# --- .envファイルの読み込み ---
+load_dotenv()
 
 app = FastAPI()
 
@@ -58,20 +65,55 @@ async def new_question():
     # --- お題を1個弾く ---
     themes = db_ctl.select_theme() # お題一覧を取得
     theme = themes[random.randint(0,len(themes))] # 乱数でお題を1つ選定
-    
+
     # お題をお題マスタへ登録
     session_id = db_ctl.insert_theme(theme)
+    convert_sid = sid_list_to_value_helper(session_id)
 
     # キャラクタマスタの出題数をインクリメント
     db_ctl.increment_question_times(theme)
 
     # システムロールのプロンプトをDBにいれる
-    db_ctl.insert_system_prompt(session_id,theme)
+    db_ctl.insert_system_prompt(convert_sid,theme)
+    return session_id
 
-    return theme
+# AIへ質問を投げるAPI
+@app.post("/ask_ai")
+async def ask_ai(data: rb.user_question_data):
 
-# # AIへ質問を投げるAPI
-# @app.post("/ask_ai")
+    # 会話履歴マスタに登録
+    db_ctl.insert_user_question(data.session_id,data.user_question_content)
+
+    # 会話履歴マスタから同一のsession_idの会話履歴をすべて取得
+    db_chat_history = db_ctl.select_conversation_history(data.session_id)
+    
+    # historyを結合
+    history = [] # 会話履歴用のリスト
+    history = {
+          "model": os.environ['AI_MODEL'],
+          "messages":db_chat_history,
+          "stream":False
+    }
+    
+    # AIに質問を投げる
+    ai_answer = ollama.generate_inference_with_ollama(history)
+
+    # 帰ってきた戻り値(回答を会話履歴マスタにinsert)
+    db_ctl.insert_ai_answer(data.session_id,ai_answer)
+    
+    # AIの回答を戻り値にする。
+    return {"ai_answer":ai_answer}
+
+
+
+# =================================
+# 【Listのdictになっているsession_idから値だけを返すヘルパー関数】
+# =================================
+
+
+def sid_list_to_value_helper(before_converting: dict):
+    session_id = before_converting['session_id']
+    return session_id
 
 if __name__ == "__main__":
     uvicorn.run(app,host="127.0.0.1",port=8000, log_level="debug")

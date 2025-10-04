@@ -12,8 +12,8 @@ load_dotenv()
 # --- リクエスト先URL ---
 OLLAMA_BASE_URL = f"http://{os.environ['OLLAMA_HOST']}:{os.environ['OLLAMA_PORT']}"
 
-# --- モデル名 ---
-MODEL_NAME = "elyza:jp8b"
+# # --- モデル名 ---
+# MODEL_NAME = "elyza:jp8b"
 
 # --- APIエンドポイント ---
 GENERATE_API_URL = f"{OLLAMA_BASE_URL}/api/chat"
@@ -42,36 +42,35 @@ def get_chat_history() -> dict | None:
 # =================================
 # 【Ollamaで推論をして回答を取得する関数】
 # =================================
-def generate_inference_with_ollama(model: str, prompt: str) -> str | None:
+def generate_inference_with_ollama(history:dict) -> str | None:
     
-    # --- 会話履歴の取得 ---
-    chat_history = get_chat_history()
+    # # --- 会話履歴の取得 ---
+    # chat_history = get_chat_history()
 
-    # --- 今回の会話内容 ---
-    current_message = {
-        "role": "user",
-        "content": prompt
-    }
+    # # --- 今回の会話内容 ---
+    # current_message = {
+    #     "role": "user",
+    #     "content": prompt
+    # }
 
-    # --- ollamaに渡す会話全体 ---
-    messages = []
-    for history in chat_history:
-        messages.append(history)
-    messages.append(current_message)
+    # # --- ollamaに渡す会話全体 ---
+    # messages = []
+    # for history in chat_history:
+    #     messages.append(history)
+    # messages.append(current_message)
 
-    # --- リクエストの本文で指定する内容 ---
-    payload = {
-        "model": model,
-        "messages": messages,
-        "stream": False
-    }
+    # # --- リクエストの本文で指定する内容 ---
+    # payload = {
+    #     "model": model,
+    #     "messages": history,
+    #     "stream": False
+    # }
 
     headers = {"Content-Type": "application/json"}
-
     try:
         # -- POSTリクエストを送信 ---
         response = requests.post(
-            GENERATE_API_URL, headers=headers, json=payload, timeout=30)
+            GENERATE_API_URL, headers=headers, json=history, timeout=30)
         # --- ステータスコードが200番台(成功)以外なら例外をthrow ---
         response.raise_for_status()
 
@@ -124,21 +123,21 @@ def generate_inference_with_ollama(model: str, prompt: str) -> str | None:
         return None
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    # --- 標準出力用 ---
-    print("--- 【質問】 ---")
-    PROMPT = input()
-    print("----------------")
-    print(f"モデル '{MODEL_NAME}' にプロンプトを送信します...")
-    print(f"プロンプト: {PROMPT}")
-    print("-" * 30)
+    # # --- 標準出力用 ---
+    # print("--- 【質問】 ---")
+    # PROMPT = input()
+    # print("----------------")
+    # print(f"モデル '{ {os.environ['AI_MODEL']}}' にプロンプトを送信します...")
+    # print(f"プロンプト: {PROMPT}")
+    # print("-" * 30)
 
-    # テキスト生成を実行
-    generated_response = generate_inference_with_ollama(MODEL_NAME,PROMPT)
+    # # テキスト生成を実行
+    # generated_response = generate_inference_with_ollama( {os.environ['AI_MODEL']},PROMPT)
 
-    if generated_response:
-        print("モデルからの応答:")
-        print(generated_response)
-    else:
-        print("テキスト生成に失敗しました。")
+    # if generated_response:
+    #     print("モデルからの応答:")
+    #     print(generated_response)
+    # else:
+    #     print("テキスト生成に失敗しました。")
