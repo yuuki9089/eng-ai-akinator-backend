@@ -104,6 +104,21 @@ async def ask_ai(data: rb.user_question_data):
     # AIの回答を戻り値にする。
     return {"ai_answer":ai_answer}
 
+# 回答を受け取るAPI
+@app.post("/answer_theme")
+async def receive_ans_from_frontend(data:rb.user_answer_data):
+    
+    # セッションidを基にお題を取得する関数
+    result = db_ctl.get_theme_info_on_session_id(data.session_id)
+    for fetched_line in result:
+       db_session_id = fetched_line['session_id']
+       db_theme = fetched_line['theme']
+       db_character_id = fetched_line['id']
+    
+    if data.user_answer_character_id == db_character_id:
+        return {"ans_result":True}
+    else:
+        return {"ans_result":False}
 
 
 # =================================
