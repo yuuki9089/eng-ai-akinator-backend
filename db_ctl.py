@@ -48,7 +48,7 @@ def select_characters():
     SELECT
           *
     FROM キャラクタマスタ
-    ORDER BY id
+    ORDER BY character_name
     ;
     """
     cur.execute(query__for_fetching)
