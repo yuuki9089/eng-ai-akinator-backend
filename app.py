@@ -120,6 +120,10 @@ async def receive_ans_from_frontend(data:rb.user_answer_data):
     else:
         return {"ans_result":False}
 
+# 会話履歴マスタから過去のQ＆Aを取得
+@app.get("/past_q_and_a/{session_id}")
+async def get_past_q_and_a(session_id:int):
+    return db_ctl.get_chat_history(session_id)
 
 # =================================
 # 【Listのdictになっているsession_idから値だけを返すヘルパー関数】

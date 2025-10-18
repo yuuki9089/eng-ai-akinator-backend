@@ -260,6 +260,21 @@ def get_theme_info_on_session_id(session_id:int):
     cur.execute(query__for_fetching,(session_id,))
     return cur.fetchall()
 
+# =================================
+# 【会話履歴マスタからシステムプロンプト以外の会話履歴を取得する関数】
+# =================================
+def get_chat_history(session_id:int):
+        # 結果がNULLだった場合は0を返す関数
+    query__for_fetching = """
+    SELECT
+        *
+    FROM 会話履歴マスタ
+    WHERE session_id = %s
+        AND role IN ("user","assistant")
+    ;
+    """
+    cur.execute(query__for_fetching,(session_id,))
+    return cur.fetchall()
 
 # =================================
 # 【メイン関数】
