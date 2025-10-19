@@ -125,6 +125,11 @@ async def receive_ans_from_frontend(data:rb.user_answer_data):
 async def get_past_q_and_a(session_id:int):
     return db_ctl.get_chat_history(session_id)
 
+# サイドーバーに表示するためのセッション単位の情報を取得するAPI
+@app.get("/get_all_session_info")
+async def geta_all_session_info():
+    return db_ctl.get_all_session_themme()
+
 # =================================
 # 【Listのdictになっているsession_idから値だけを返すヘルパー関数】
 # =================================

@@ -264,10 +264,10 @@ def get_theme_info_on_session_id(session_id:int):
 # 【会話履歴マスタからシステムプロンプト以外の会話履歴を取得する関数】
 # =================================
 def get_chat_history(session_id:int):
-        # 結果がNULLだった場合は0を返す関数
+    # 結果がNULLだった場合は0を返す関数
     query__for_fetching = """
     SELECT
-        *
+        id,role,message,question_id
     FROM 会話履歴マスタ
     WHERE session_id = %s
         AND role IN ("user","assistant")
@@ -275,6 +275,23 @@ def get_chat_history(session_id:int):
     """
     cur.execute(query__for_fetching,(session_id,))
     return cur.fetchall()
+
+# =================================
+# 【サイドバーに表示させる情報を取得する関数】
+# =================================
+def get_all_session_themme():
+    query__for_fetching = """
+    SELECT
+        session_id,theme,character_name,done
+    FROM お題マスタ a
+    LEFT JOIN キャラクタマスタ b
+        ON a.theme = b.id
+    ORDER BY a.session_id DESC
+    ;
+    """
+    cur.execute(query__for_fetching)
+    return cur.fetchall()
+
 
 # =================================
 # 【メイン関数】
